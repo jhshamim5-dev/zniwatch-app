@@ -1,0 +1,9 @@
+{
+  "projectId": "cbd11b0c-0c7c-436c-964e-c3e2767c5773",
+  "createdAt": 1740751200000,
+  "startupCommands": [
+    "npm install; npm run dev -- --host"
+  ],
+  "templateId": "any",
+  "detectedFramework": "vite"
+}
