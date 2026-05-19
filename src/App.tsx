@@ -10,7 +10,7 @@ import LibraryPage from "./pages/Library";
 import AnimeDetails from "./pages/AnimeDetails";
 import EpisodeSelector from "./pages/EpisodeSelector";
 import VideoPlayer from "./pages/VideoPlayer";
-import DubbedAnimePage from "./pages/DubbedAnime";
+import GenreAnimePage from "./pages/DubbedAnime";
 import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 import HoverReceiver from "@/visual-edits/VisualEditsMessenger";
@@ -51,7 +51,7 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<PageWrapper><Index /></PageWrapper>} />
         <Route path="/search" element={<PageWrapper><SearchPage /></PageWrapper>} />
         <Route path="/library" element={<PageWrapper><LibraryPage /></PageWrapper>} />
-        <Route path="/dubbed" element={<PageWrapper><DubbedAnimePage /></PageWrapper>} />
+        <Route path="/genre" element={<PageWrapper><GenreAnimePage /></PageWrapper>} />
         <Route path="/community" element={<PageWrapper><Community /></PageWrapper>} />
         <Route path="/anime/:id" element={<PageWrapper><AnimeDetails /></PageWrapper>} />
         <Route path="/anime/:id/episodes" element={<PageWrapper><EpisodeSelector /></PageWrapper>} />

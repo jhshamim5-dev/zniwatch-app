@@ -233,7 +233,7 @@ export interface CustomListResponse {
 export const mapNewToAnimeMedia = (item: NewAnimeItem): AnimeMedia => {
   const eps = item.episodes ? Number(item.episodes) : null;
   return {
-    id: (item.id as unknown as number) || 0,
+    id: typeof item.id === 'string' ? item.id : (item.id as unknown as number) || 0,
     title: {
       romaji: item.title,
       english: item.title,
@@ -414,7 +414,7 @@ export const mapNewInfoToAnimeMedia = (data: NewInfoData): AnimeMedia => {
   const dubCount = data.totalDub || 0;
   
   const recommendedNodes = (data.recommendations || []).map(rec => ({
-    id: Number(rec.id) || 0,
+    id: typeof rec.id === 'string' ? rec.id : Number(rec.id) || 0,
     title: { 
       romaji: rec.title,
       english: rec.title,
@@ -436,7 +436,7 @@ export const mapNewInfoToAnimeMedia = (data: NewInfoData): AnimeMedia => {
   }));
 
   const relatedNodes = (data.related || []).map(rel => ({
-    id: Number(rel.id) || 0,
+    id: typeof rel.id === 'string' ? rel.id : Number(rel.id) || 0,
     title: { 
       romaji: rel.title,
       english: rel.title,
@@ -460,7 +460,7 @@ export const mapNewInfoToAnimeMedia = (data: NewInfoData): AnimeMedia => {
   const studios = data.studios?.map(s => ({ name: s })) || [];
   
   return {
-    id: (data.id as unknown as number) || 0,
+    id: typeof data.id === 'string' ? data.id : (data.id as unknown as number) || 0,
     idMal: data.malId,
     subCount,
     dubCount,
@@ -640,5 +640,36 @@ export const fetchDubbedAnime = async (page: number = 1): Promise<DubbedAnimeRes
   return {
     ...json.results,
     currentPage: page,
+  };
+};
+
+export const fetchGenreAnime = async (genre: string, page: number = 1): Promise<DubbedAnimeResult> => {
+  // We'll replace spaces with dashes and lowercase it for safety although the param is already formatted
+  const formattedGenre = genre.toLowerCase().replace(/ /g, '-');
+  const res = await fetchWithTimeout(`${BASE_URL}/api/genre/${formattedGenre}?page=${page}`);
+  const json = await res.json();
+  
+  if (!json.success || !json.data) {
+    throw new Error('Failed to fetch genre anime');
+  }
+  
+  const mappedData: CustomAnimeItem[] = json.data.map((item: any) => ({
+    id: item.id,
+    title: item.title,
+    japanese_title: item.title,
+    poster: item.image,
+    tvInfo: {
+      sub: item.sub,
+      dub: item.dub,
+      showType: item.type
+    }
+  }));
+
+  const totalPages = json.totalPages || (json.hasNextPage ? page + 1 : page);
+
+  return {
+    data: mappedData,
+    totalPages: totalPages,
+    currentPage: page
   };
 };

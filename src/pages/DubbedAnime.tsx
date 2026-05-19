@@ -1,15 +1,24 @@
 import { motion } from 'framer-motion';
-import { ArrowLeft, Mic, Loader2, Star } from 'lucide-react';
+import { ArrowLeft, LayoutGrid, Loader2, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
-import { useEffect } from 'react';
-import { fetchDubbedAnime, CustomAnimeItem, DubbedAnimeResult } from '@/lib/api';
+import { useEffect, useState } from 'react';
+import { fetchGenreAnime, CustomAnimeItem, DubbedAnimeResult } from '@/lib/api';
 import BottomNav from '@/components/BottomNav';
 
-const DubbedAnimePage = () => {
+const GENRES = [
+  "Action", "Adventure", "Cars", "Comedy", "Dementia", "Demons", "Mystery", "Drama", "Ecchi", 
+  "Fantasy", "Game", "Hentai", "Historical", "Horror", "Kids", "Magic", "Martial Arts", "Mecha", 
+  "Music", "Parody", "Samurai", "Romance", "School", "Sci-Fi", "Shoujo", "Shoujo Ai", "Shounen", 
+  "Shounen Ai", "Space", "Sports", "Super Power", "Vampire", "Yaoi", "Yuri", "Harem", "Slice of Life", 
+  "Supernatural", "Military", "Police", "Psychological", "Thriller", "Seinen", "Josei"
+];
+
+const GenreAnimePage = () => {
   const navigate = useNavigate();
   const { ref, inView } = useInView({ threshold: 0, rootMargin: '200px' });
+  const [selectedGenre, setSelectedGenre] = useState<string>("Action");
 
   const handleBack = () => {
     if (window.history.length > 2) {
@@ -27,8 +36,8 @@ const DubbedAnimePage = () => {
     isLoading,
     isError,
   } = useInfiniteQuery({
-    queryKey: ['dubbed-anime'],
-    queryFn: ({ pageParam }) => fetchDubbedAnime(pageParam),
+    queryKey: ['genre-anime', selectedGenre],
+    queryFn: ({ pageParam }) => fetchGenreAnime(selectedGenre, pageParam),
     getNextPageParam: (lastPage: DubbedAnimeResult) => {
       if (lastPage.currentPage < lastPage.totalPages) {
         return lastPage.currentPage + 1;
@@ -60,13 +69,30 @@ const DubbedAnimePage = () => {
           </motion.button>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
-              <Mic className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-              Dubbed Anime
+              <LayoutGrid className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+              Browse by Genre
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Anime available with English dub
+              Discover anime based on genres
             </p>
           </div>
+        </div>
+
+        {/* Genre Selector */}
+        <div className="flex gap-2 overflow-x-auto hide-scrollbar mb-8 pb-2">
+          {GENRES.map((genre) => (
+            <button
+              key={genre}
+              onClick={() => setSelectedGenre(genre)}
+              className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-colors ${
+                selectedGenre === genre
+                  ? 'bg-primary text-primary-foreground shadow-glow'
+                  : 'bg-secondary/50 hover:bg-secondary text-secondary-foreground'
+              }`}
+            >
+              {genre}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -83,10 +109,10 @@ const DubbedAnimePage = () => {
           </div>
         ) : isError ? (
           <div className="text-center py-16 sm:py-20">
-            <Mic className="w-16 h-16 sm:w-20 sm:h-20 text-muted-foreground mx-auto mb-4 sm:mb-6" />
+            <LayoutGrid className="w-16 h-16 sm:w-20 sm:h-20 text-muted-foreground mx-auto mb-4 sm:mb-6" />
             <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">Failed to load</h3>
             <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
-              Unable to fetch dubbed anime. Please try again.
+              Unable to fetch {selectedGenre} anime. Please try again.
             </p>
             <motion.button
               onClick={() => window.location.reload()}
@@ -176,10 +202,10 @@ const DubbedAnimePage = () => {
           </>
         ) : (
           <div className="text-center py-16 sm:py-20">
-            <Mic className="w-16 h-16 sm:w-20 sm:h-20 text-muted-foreground mx-auto mb-4 sm:mb-6" />
-            <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">No dubbed anime found</h3>
+            <LayoutGrid className="w-16 h-16 sm:w-20 sm:h-20 text-muted-foreground mx-auto mb-4 sm:mb-6" />
+            <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">No anime found</h3>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Check back later for dubbed anime content
+              Could not find anime for {selectedGenre} genre
             </p>
           </div>
         )}
@@ -190,4 +216,4 @@ const DubbedAnimePage = () => {
   );
 };
 
-export default DubbedAnimePage;
+export default GenreAnimePage;

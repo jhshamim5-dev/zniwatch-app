@@ -3,21 +3,13 @@ import { Users, MessageCircle, TrendingUp, Star, ExternalLink, Eye } from 'lucid
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import BottomNav from '@/components/BottomNav';
-
-
-interface TopTenAnime {
-  id: string;
-  data_id: string;
-  number: string;
-  title: string;
-  japanese_title: string;
-  poster: string;
-  tvInfo: { sub?: string; dub?: string };
-}
+import AnimeRow from '@/components/AnimeRow';
+import { fetchMostPopular } from '@/lib/api';
+import { AnimeMedia } from '@/lib/anilist';
 
 const Community = () => {
   const navigate = useNavigate();
-  const [trendingAnime, setTrendingAnime] = useState<TopTenAnime[]>([]);
+  const [trendingAnime, setTrendingAnime] = useState<AnimeMedia[]>([]);
   const [loading, setLoading] = useState(true);
   const [visitCount, setVisitCount] = useState(0);
 
@@ -29,10 +21,8 @@ const Community = () => {
 
     const fetchTrending = async () => {
         try {
-          const res = await fetch('https://anikoto-api.vercel.app/api/top-ten');
-          const json = await res.json();
-          const today: TopTenAnime[] = json.results?.today?.slice(0, 5) || [];
-          setTrendingAnime(today);
+          const res = await fetchMostPopular();
+          setTrendingAnime(res);
         } catch (error) {
           console.error('Failed to fetch trending:', error);
         } finally {
@@ -45,7 +35,7 @@ const Community = () => {
 
     return (
     <div className="min-h-screen bg-background pb-24 sm:pb-32">
-      <div className="container pt-6 sm:pt-8">
+      <div className="container pt-6 sm:pt-8 mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
           <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
           Community
@@ -90,50 +80,6 @@ const Community = () => {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="glass rounded-2xl p-4 sm:p-5"
-            >
-              <h3 className="font-bold text-base sm:text-lg mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                Trending Now
-              </h3>
-              <div className="space-y-3">
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 p-2.5 rounded-xl animate-pulse">
-                      <div className="w-6 h-6 bg-muted rounded" />
-                      <div className="flex-1 h-4 bg-muted rounded" />
-                    </div>
-                  ))
-                ) : (
-                    trendingAnime.map((anime, index) => (
-                      <div
-                        key={anime.data_id}
-                        onClick={() => navigate(`/anime/${anime.id}`)}
-                        className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors"
-                      >
-                        <span className="text-lg font-bold text-muted-foreground w-6">#{index + 1}</span>
-                        <img
-                          src={anime.poster}
-                          alt={anime.title}
-                          className="w-10 h-14 rounded-lg object-cover"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <span className="font-medium text-sm line-clamp-1">
-                            {anime.title}
-                          </span>
-                          <span className="text-xs text-muted-foreground block">
-                            {[anime.tvInfo?.sub && `Sub: ${anime.tvInfo.sub}`, anime.tvInfo?.dub && `Dub: ${anime.tvInfo.dub}`].filter(Boolean).join(' • ')}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                )}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
               className="glass rounded-2xl p-4 sm:p-5"
             >
@@ -154,6 +100,13 @@ const Community = () => {
           </div>
         </div>
       </div>
+
+      {/* Trending Row */}
+      <AnimeRow
+        title="🔥 Trending Now"
+        anime={trendingAnime}
+        isLoading={loading}
+      />
 
       <BottomNav />
     </div>

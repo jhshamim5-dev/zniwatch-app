@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Search, User, Users, Mic } from 'lucide-react';
+import { Search, User, Users, Mic, LayoutGrid } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -89,12 +89,12 @@ const TopBar = () => {
                 <button 
                   onClick={() => {
                     setMenuOpen(false);
-                    navigate('/dubbed');
+                    navigate('/genre');
                   }}
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-left text-xs sm:text-sm hover:bg-primary/10 transition-colors flex items-center gap-2"
                 >
-                  <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  Dubbed Anime
+                  <LayoutGrid className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  Genres
                 </button>
                 <button 
                     onClick={() => {
