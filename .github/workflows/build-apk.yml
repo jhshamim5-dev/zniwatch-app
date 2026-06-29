@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Setup Java 17
@@ -30,13 +30,9 @@ jobs:
 
       - name: Install web dependencies
         run: npm install
-        env:
-          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
       - name: Install Capacitor Android
         run: npm install @capacitor/core @capacitor/cli @capacitor/android
-        env:
-          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
       - name: Add Android platform
         run: |
@@ -58,21 +54,15 @@ jobs:
 
       - name: Build web app (Vite)
         run: npx vite build
-        env:
-          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
       - name: Sync Capacitor
         run: npx cap sync android
-        env:
-          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
       - name: Build debug APK
         working-directory: ./android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
-        env:
-          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
