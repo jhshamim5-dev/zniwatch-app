@@ -91,6 +91,47 @@ const VideoPlayer = () => {
   const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isDraggingRef = useRef(false);
 
+  // Lock orientation to landscape + enter immersive fullscreen when entering video player
+  useEffect(() => {
+    const lockLandscape = async () => {
+      try {
+        // Try Capacitor native orientation lock first
+        const { ScreenOrientation } = await import('@capacitor/screen-orientation');
+        await ScreenOrientation.lock({ orientation: 'landscape' });
+      } catch (_) {
+        // Fallback: web Screen Orientation API
+        try {
+          if (screen.orientation && screen.orientation.lock) {
+            await screen.orientation.lock('landscape');
+          }
+        } catch (_) {}
+      }
+      // Enter browser fullscreen (immersive mode)
+      try {
+        const elem = document.documentElement as any;
+        if (elem.requestFullscreen) await elem.requestFullscreen();
+        else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
+      } catch (_) {}
+    };
+    lockLandscape();
+
+    // Cleanup: unlock orientation + exit fullscreen on unmount
+    return () => {
+      try {
+        import('@capacitor/screen-orientation').then(({ ScreenOrientation }) => {
+          ScreenOrientation.unlock();
+        });
+      } catch (_) {}
+      try {
+        if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+      } catch (_) {}
+      try {
+        if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+        else if ((document as any).webkitExitFullscreen) (document as any).webkitExitFullscreen();
+      } catch (_) {}
+    };
+  }, []);
+
   const { saveProgress, getEpisodeProgress } = useWatchHistory();
   const { data: anime } = useAnimeDetails(id!);
   const { data: episodesData } = useAnimeEpisodes(id!);
