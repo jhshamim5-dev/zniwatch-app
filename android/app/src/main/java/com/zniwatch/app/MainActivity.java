@@ -14,8 +14,8 @@ public class MainActivity extends BridgeActivity {
 
         // Enable edge-to-edge and hide system bars for immersive mode
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false);
-            WindowInsetsController insetsController = window.getInsetsController();
+            getWindow().setDecorFitsSystemWindows(false);
+            WindowInsetsController insetsController = getWindow().getInsetsController();
             if (insetsController != null) {
                 insetsController.hide(WindowInsets.Type.systemBars());
                 insetsController.setSystemBarsBehavior(
@@ -30,7 +30,7 @@ public class MainActivity extends BridgeActivity {
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-            window.getDecorView().setSystemUiVisibility(uiOptions);
+            getWindow().getDecorView().setSystemUiVisibility(uiOptions);
         }
     }
 }
