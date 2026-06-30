@@ -93,30 +93,41 @@ const VideoPlayer = () => {
 
   // Lock orientation to landscape + enter immersive fullscreen when entering video player
   useEffect(() => {
-    const lockLandscape = async () => {
+    const enterFullscreen = async () => {
+      // Hide the status bar natively (fixes nav bar / status bar showing on some phones)
       try {
-        // Try Capacitor native orientation lock first
+        const { StatusBar } = await import('@capacitor/status-bar');
+        await StatusBar.hide();
+      } catch (_) {}
+
+      // Lock to landscape
+      try {
         const { ScreenOrientation } = await import('@capacitor/screen-orientation');
         await ScreenOrientation.lock({ orientation: 'landscape' });
       } catch (_) {
-        // Fallback: web Screen Orientation API
         try {
           if (screen.orientation && screen.orientation.lock) {
             await screen.orientation.lock('landscape');
           }
         } catch (_) {}
       }
-      // Enter browser fullscreen (immersive mode)
+
+      // Enter browser fullscreen
       try {
         const elem = document.documentElement as any;
         if (elem.requestFullscreen) await elem.requestFullscreen();
         else if (elem.webkitRequestFullscreen) await elem.webkitRequestFullscreen();
       } catch (_) {}
     };
-    lockLandscape();
+    enterFullscreen();
 
-    // Cleanup: unlock orientation + exit fullscreen on unmount
+    // Cleanup: show bar + exit fullscreen on unmount
     return () => {
+      try {
+        import('@capacitor/status-bar').then(({ StatusBar }) => {
+          StatusBar.show();
+        });
+      } catch (_) {}
       try {
         import('@capacitor/screen-orientation').then(({ ScreenOrientation }) => {
           ScreenOrientation.unlock();
